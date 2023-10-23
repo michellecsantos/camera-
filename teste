@@ -1,0 +1,46 @@
+<script type="text/javascript">
+        window.addEventListener('load', function () {
+            let selectedDeviceId;
+            const codeReader = new ZXing.BrowserMultiFormatReader();
+            console.log('ZXing code reader initialized');
+            codeReader.getVideoInputDevices()
+                .then((videoInputDevices) => {
+                    if (videoInputDevices.length < 1) {
+                        console.log('No video devices found');
+                        return;
+                    }
+
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+
+                    codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+                        if (result) {
+                            console.log(result);
+                            var barcode = result;
+                            //this.window.alert(barcode);
+                            if (String(barcode).charAt(0) == 'L') {
+                                document.getElementById('result').textContent = result.text;
+                                document.getElementById('result').style.color = "green";
+                                var previousurl = document.referrer;
+                                window.location.href = previousurl + "&BarCode=" + result.text;
+                            }
+                            else {
+
+                                document.getElementById('result').textContent = result.text;
+                                document.getElementById('result').style.color = "red";
+                                window.alert("Incorrect Barcode scan value.  Please try again.")
+                            }
+
+                        }
+                        if (err && !(err instanceof ZXing.NotFoundException)) {
+                            console.error(err);
+                            document.getElementById('result').textContent = err;
+                        }
+                    })
+                    console.log(`Started continous decode from camera with id ${selectedDeviceId}`)
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+        })
+
+    </script>
